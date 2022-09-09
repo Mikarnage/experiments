@@ -14593,9 +14593,9 @@
     }
 
     function dispOverview() {
-      let html = "<div>"
+      let html = "<div class='overview'>"
       allHsk.forEach((value, number) => {
-        html = html + value.hanzi;
+        html = html + `<div class="minifiche">${value.hanzi}</div>`;
       })
       html = html + "</div>";
       return html;
@@ -14727,6 +14727,21 @@
 
     #bad {
       background-color: pink;
+    }
+
+    .minifiche {
+      border: 1px solid black;
+      font-size: 2em;
+      margin: 3px;
+      padding: 5px;
+      min-width: 5em;
+      text-align: center;
+    }
+
+    .overview {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
     }
   </style>
 </head>
