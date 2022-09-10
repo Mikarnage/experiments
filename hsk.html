@@ -14553,9 +14553,14 @@
     var answerHidden = true;
     var lastAddedWord = 0;
 
+    var overviewAttributes = [];
+
     const MODE_LEARN = 0;
     const MODE_OVERVIEW = 1;
     var mode = MODE_LEARN;
+
+    //---------------------------------------- Display of learning mode -------------------------------------------------------
+
 
     function dispCurrentChar(currentChar, hidden) {
       let html = `<div id="currentChar">
@@ -14592,20 +14597,57 @@
       return html;
     }
 
+    function initModeLearn() {
+
+    }
+    
+    //---------------------------------------- Display of overview mode -------------------------------------------------------
+
+    function overviewToggleSelect(index) {      
+      overviewAttributes[index].selected = !overviewAttributes[index].selected;
+      display();
+    }
+
+    function dispOverviewFiche(dicoItem, overviewAttribute, index) {
+      return `<div class="minifiche ${overviewAttribute.subListIndex===undefined?'':'insublist'} ${overviewAttribute.selected===false?'':'selected'}" onClick="overviewToggleSelect(${index})">${dicoItem.hanzi}</div>`;
+    }
+
     function dispOverview() {
       let html = "<div class='overview'>"
       allHsk.forEach((value, number) => {
-        html = html + `<div class="minifiche">${value.hanzi}</div>`;
+        html = html + dispOverviewFiche(value, overviewAttributes[number], number);
       })
       html = html + "</div>";
       return html;
 
     }
 
+    function initModeOverview() {
+      overviewAttributes=[];
+      var inverseSublist={};
+      for (var f of subList) {
+        inverseSublist[f.index] = f;
+      }
+      for (var i=0;i<allHsk.length;i++) {
+        overviewAttributes.push({selected:false, subListIndex:inverseSublist[i]});
+      }
+    }
+
+    //---------------------------------------- Display of general interface -------------------------------------------------------
+
+    function switchToMode(newMode) {
+      mode = newMode;
+      if (mode == MODE_LEARN)
+        initModeLearn();
+      else
+        initModeOverview();
+      display();
+    }
+
     function dispSelectMode() {
       return `<div id="selectModeHeader">
-        <div class="${mode == MODE_LEARN ? 'modeSelector selected' : 'modeSelector'}" onClick="mode=MODE_LEARN;display()">Learn</div>
-        <div class="${mode == MODE_OVERVIEW ? 'modeSelector selected' : 'modeSelector'}" onClick="mode=MODE_OVERVIEW;display()">Overview</div>
+        <div class="${mode == MODE_LEARN ? 'modeSelector selected' : 'modeSelector'}" onClick="switchToMode(MODE_LEARN)">Learn</div>
+        <div class="${mode == MODE_OVERVIEW ? 'modeSelector selected' : 'modeSelector'}" onClick="switchToMode(MODE_OVERVIEW)">Overview</div>
       </div>`;
     }
 
@@ -14623,6 +14665,8 @@
       ${mode == MODE_LEARN ? dispLearn() : dispOverview()}
       `;
     }
+
+    //---------------------------------------- Other functions -------------------------------------------------------
 
     function shouldAddOne() {
       for (var fiche of subList) {
@@ -14660,11 +14704,15 @@
       lastAddedWord++;
     }
 
-    window.onload = () => {
+    function init() {
       addWord();
       addWord();
       addWord();
       display();
+    }
+
+    window.onload = () => {
+      init();
     }
   </script>
 
@@ -14736,6 +14784,16 @@
       padding: 5px;
       min-width: 5em;
       text-align: center;
+    }
+
+    .minifiche.insublist {
+      background-color: aquamarine;
+    }
+
+    .minifiche.selected {
+      border-color: red;
+      border-width: 2px;
+      margin: 2px;
     }
 
     .overview {
